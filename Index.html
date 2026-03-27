@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track your Spending</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #e8f5f3 0%, #d4e9e7 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(26, 187, 180, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+            backdrop-filter: blur(30px);
+            border-radius: 28px;
+            box-shadow: 0 12px 40px rgba(26, 187, 180, 0.15);
+            border: 1px solid rgba(255, 255, 255, 1);
+        }
+
+        .account-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 16px rgba(26, 187, 180, 0.08);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1ABBB4 0%, #14a39d 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 14px 28px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(26, 187, 180, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(26, 187, 180, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(26, 187, 180, 0.1);
+            color: #1ABBB4;
+            border: 1px solid rgba(26, 187, 180, 0.3);
+            border-radius: 16px;
+            padding: 14px 28px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(26, 187, 180, 0.15);
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(26, 187, 180, 0.2);
+            border-radius: 16px;
+            padding: 14px 20px;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #1ABBB4;
+            box-shadow: 0 0 0 4px rgba(26, 187, 180, 0.1);
+        }
+
+        .savings-btn {
+            background: rgba(26, 187, 180, 0.08);
+            border: 2px solid rgba(26, 187, 180, 0.2);
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-weight: 600;
+            color: #1ABBB4;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .savings-btn:hover, .savings-btn.active {
+            background: #1ABBB4;
+            color: white;
+            border-color: #1ABBB4;
+        }
+
+        .expense-item {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(26, 187, 180, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .expense-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 16px rgba(26, 187, 180, 0.12);
+        }
+
+        .category-badge {
+            background: rgba(26, 187, 180, 0.15);
+            color: #14a39d;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .ai-bubble {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #1ABBB4 0%, #14a39d 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(26, 187, 180, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .ai-bubble:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(26, 187, 180, 0.5);
+        }
+
+        .ai-chat-window {
+            position: fixed;
+            bottom: 100px;
+            right: 24px;
+            width: 380px;
+            max-width: calc(100vw - 48px);
+            height: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(30px);
+            border-radius: 24px;
+            box-shadow: 0 16px 48px rgba(26, 187, 180, 0.2);
+            border: 1px solid rgba(255, 255, 255, 1);
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+        }
+
+        .ai-chat-window.active {
+            display: flex;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .chat-message {
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-message.user {
+            text-align: right;
+        }
+
+        .chat-message .bubble {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .chat-message.user .bubble {
+            background: linear-gradient(135deg, #1ABBB4 0%, #14a39d 100%);
+            color: white;
+        }
+
+        .chat-message.ai .bubble {
+            background: rgba(26, 187, 180, 0.1);
+            color: #2c3e50;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            padding: 40px;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(26, 187, 180, 0.1) 0%, rgba(26, 187, 180, 0.05) 100%);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(26, 187, 180, 0.2);
+        }
+
+        .chart-bar {
+            background: linear-gradient(180deg, #1ABBB4 0%, #14a39d 100%);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .edit-btn {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(26, 187, 180, 0.05);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(26, 187, 180, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(26, 187, 180, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Onboarding Modal -->
+    <div id="onboardingModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2 style="font-size: 28px; font-weight: 700; color: #2c3e50; margin-bottom: 12px;">Welcome! 👋</h2>
+            <p style="color: #64748b; margin-bottom: 28px;">Let's get started with tracking your finances</p>
+            <input type="text" id="userName" class="input-field" placeholder="What's your name?" style="margin-bottom: 24px;">
+            <button onclick="completeOnboarding()" class="btn-primary" style="width: 100%;">Get Started</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: 24px;">
+        <!-- Header -->
+        <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <h1 style="font-size: 32px; font-weight: 700; color: #2c3e50; margin-bottom: 4px;">Track your Spending</h1>
+                    <p style="color: #64748b; font-size: 16px;">Hi <span id="userGreeting"></span>!</p>
+                </div>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <button onclick="exportToCSV()" class="btn-secondary">📊 Export CSV</button>
+                    <button onclick="resetApp()" class="btn-secondary">🔄 Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+            <!-- Balance Card -->
+            <div class="balance-card" style="padding: 32px;">
+                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 24px;">
+                    <h3 style="color: #64748b; font-size: 16px; font-weight: 600;">Balance</h3>
+                    <button onclick="showIncomeModal()" style="background: #1ABBB4; color: white; width: 40px; height: 40px; border-radius: 50%; border: none; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <span style="font-size: 48px; font-weight: 700; color: #2c3e50;">৳<span id="spendableBalance">0</span></span>
+                    <span style="font-size: 28px; color: #94a3b8;">.00</span>
+                </div>
+                <div style="color: #10b981; font-size: 14px; font-weight: 600; margin-bottom: 24px;">
+                    ↑ Spendable Balance
+                </div>
+
+                <!-- Mini Chart -->
+                <div style="height: 80px; display: flex; align-items: flex-end; gap: 6px; margin-bottom: 24px;">
+                    <div class="chart-bar" style="flex: 1; height: 40%;"></div>
+                    <div class="chart-bar" style="flex: 1; height: 55%;"></div>
+                    <div class="chart-bar" style="flex: 1; height: 70%;"></div>
+                    <div class="chart-bar" style="flex: 1; height: 60%;"></div>
+                    <div class="chart-bar" style="flex: 1; height: 85%;"></div>
+                    <div class="chart-bar" style="flex: 1; height: 75%;"></div>
+                    <div class="chart-bar" style="flex: 1; height: 90%;"></div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <button onclick="showExpenseModal()" class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span style="font-size: 20px;">💸</span> Add Expense
+                    </button>
+                    <button onclick="showSavingsModal()" class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span style="font-size: 20px;">🔒</span> Save
+                    </button>
+                </div>
+            </div>
+
+            <!-- Account Overview -->
+            <div class="glass-card" style="padding: 32px;">
+                <h3 style="color: #2c3e50; font-size: 20px; font-weight: 700; margin-bottom: 24px;">Accounts</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div class="account-card" style="padding: 20px; text-align: center;">
+                        <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: rgba(26, 187, 180, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">💰</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #2c3e50; margin-bottom: 4px;">৳<span id="totalIncome">0</span></div>
+                        <div style="color: #64748b; font-size: 13px; font-weight: 600;">INCOME</div>
+                    </div>
+                    
+                    <div class="account-card" style="padding: 20px; text-align: center;">
+                        <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: rgba(26, 187, 180, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">🔒</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #2c3e50; margin-bottom: 4px;">৳<span id="lockedSavings">0</span></div>
+                        <div style="color: #64748b; font-size: 13px; font-weight: 600;">SAVINGS</div>
+                    </div>
+                    
+                    <div class="account-card" style="padding: 20px; text-align: center;">
+                        <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: rgba(239, 68, 68, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">💸</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #2c3e50; margin-bottom: 4px;">৳<span id="totalExpenses">0</span></div>
+                        <div style="color: #64748b; font-size: 13px; font-weight: 600;">EXPENSES</div>
+                    </div>
+                </div>
+
+                <!-- Analytics -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="stat-card">
+                        <div style="color: #64748b; font-size: 13px; font-weight: 600; margin-bottom: 8px;">DAILY BUDGET</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #2c3e50;">৳<span id="dailyBudget">0</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div style="color: #64748b; font-size: 13px; font-weight: 600; margin-bottom: 8px;">BURN RATE</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #2c3e50;"><span id="burnRate">0</span>%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expenses List -->
+            <div class="glass-card" style="padding: 32px;">
+                <h3 style="color: #2c3e50; font-size: 20px; font-weight: 700; margin-bottom: 24px;">Recent Transactions</h3>
+                <div id="expensesList" style="max-height: 400px; overflow-y: auto;">
+                    <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">📝</div>
+                        <p>No expenses yet. Add your first transaction!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 40px; padding: 20px; color: #94a3b8; font-size: 14px;">
+            <p>🔒 Your data stays in your browser. Created by <strong style="color: #1ABBB4;">Roni Siful</strong></p>
+        </div>
+    </div>
+
+    <!-- AI Chat Bubble -->
+    <div class="ai-bubble" onclick="toggleAIChat()">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </div>
+
+    <!-- AI Chat Window -->
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div style="padding: 20px; border-bottom: 1px solid rgba(26, 187, 180, 0.2); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="font-size: 18px; font-weight: 700; color: #2c3e50;">AI Financial Advisor</h3>
+                <p style="font-size: 12px; color: #64748b;">Powered by Groq AI</p>
+            </div>
+            <button onclick="toggleAIChat()" style="background: none; border: none; font-size: 24px; color: #64748b; cursor: pointer;">×</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message ai">
+                <div class="bubble">
+                    Hello! I'm your AI financial advisor. Ask me anything about managing your money, reducing expenses, or improving your savings strategy! 💰
+                </div>
+            </div>
+        </div>
+        <div style="padding: 16px; border-top: 1px solid rgba(26, 187, 180, 0.2);">
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="aiInput" class="input-field" placeholder="Ask about your finances..." style="margin: 0; flex: 1;" onkeypress="if(event.key==='Enter')sendAIMessage()">
+                <button onclick="sendAIMessage()" class="btn-primary" style="padding: 14px 20px;">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Structure
+        let financeData = {
+            userName: '',
+            income: 0,
+            savingsPercentage: 0,
+            lockedSavings: 0,
+            expenses: []
+        };
+
+        // Initialize App
+        function initApp() {
+            const savedData = localStorage.getItem('financeData');
+            if (savedData) {
+                financeData = JSON.parse(savedData);
+                if (financeData.userName) {
+                    document.getElementById('userGreeting').textContent = financeData.userName;
+                    updateDashboard();
+                } else {
+                    showOnboarding();
+                }
+            } else {
+                showOnboarding();
+            }
+        }
+
+        function showOnboarding() {
+            document.getElementById('onboardingModal').style.display = 'flex';
+        }
+
+        function completeOnboarding() {
+            const name = document.getElementById('userName').value.trim();
+            if (name) {
+                financeData.userName = name;
+                document.getElementById('userGreeting').textContent = name;
+                document.getElementById('onboardingModa
